@@ -1,0 +1,64 @@
+public class Verb {
+
+    static final String[][] endings = {{"あ", "い", "う", "え", "お"}, {"か", "き", "く", "け", "こ"}, {"さ", "し", "す", "せ", "そ"}, {"な", "に", "ぬ", "ね", "の"}, {"た", "ち", "つ", "て", "と"}
+            , {"は", "ひ", "ふ", "へ", "ほ"}, {"ま", "み", "む", "め", "も"}, {"ら", "り", "る", "れ", "ろ"}, {"が", "ぎ", "ぐ", "げ", "ご"},
+            {"ざ", "じ", "ず", "ぜ", "ぞ"}, {"ば", "び", "ぶ", "べ", "ぼ"}, {"ぱ", "ぴ", "ぷ", "ぺ", "ぽ"}, {"だ", "ぢ", "づ", "で", "ど"}};
+
+    String verbDictionaryForm;
+    boolean uVerb;
+    boolean ruVerb;
+    boolean irregular;
+
+    Verb(String text, String type){
+        this.verbDictionaryForm = text;
+        if(type.toLowerCase().equals("ru")){
+            ruVerb = true;
+            uVerb = false;
+            irregular = false;
+        }
+        if (type.toLowerCase().equals("u")){
+            ruVerb = false;
+            uVerb = true;
+            irregular = false;
+        }
+        if (type.toLowerCase().equals("irr")){
+            ruVerb = false;
+            uVerb = false;
+            irregular = true;
+        }
+    }
+
+    String presentAffirmative(){
+        if (uVerb){
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < this.verbDictionaryForm.length() - 1; i++){
+                builder.append(this.verbDictionaryForm.substring(i, i + 1));
+            }
+            for(int i = 0; i < endings.length; i++){
+                for (int j = 0; j < endings[i].length; j++){
+                    if (endings[i][j].equals(this.verbDictionaryForm.substring(this.verbDictionaryForm.length() - 1))){
+                        builder.append(endings[i][1]);
+                    }
+                }
+            }
+            return builder.toString() + "ます";
+        }
+        if (ruVerb){
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < this.verbDictionaryForm.length() - 1; i++){
+                builder.append(this.verbDictionaryForm.substring(i, i + 1));
+            }
+            return builder.toString() + "ます";
+        }
+        if (irregular){
+            if (this.verbDictionaryForm.equals("する")){
+                return "します";
+            }
+            if (this.verbDictionaryForm.equals("")){
+                return "きます";
+            }
+        }
+        return null;
+    }
+
+}
