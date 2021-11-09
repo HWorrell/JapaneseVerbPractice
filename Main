@@ -1,13 +1,107 @@
+import javax.swing.*;
+import java.awt.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Random;
+import java.util.Scanner;
+import java.util.Vector;
+
 public class Main {
     static final String[][] endings = {{"あ", "い", "う", "え", "お"}, {"か", "き", "く", "け", "こ"}, {"さ", "し", "す", "せ", "そ"}, {"な", "に", "ぬ", "ね", "の"}, {"た", "ち", "つ", "て", "と"}
-    , {"は", "ひ", "ふ", "へ", "ほ"}, {"ま", "み", "む", "め", "も"}, {"ら", "り", "る", "れ", "ろ"}, {"が", "ぎ", "ぐ", "げ", "ご"},
+            , {"は", "ひ", "ふ", "へ", "ほ"}, {"ま", "み", "む", "め", "も"}, {"ら", "り", "る", "れ", "ろ"}, {"が", "ぎ", "ぐ", "げ", "ご"},
             {"ざ", "じ", "ず", "ぜ", "ぞ"}, {"ば", "び", "ぶ", "べ", "ぼ"}, {"ぱ", "ぴ", "ぷ", "ぺ", "ぽ"}, {"だ", "ぢ", "づ", "で", "ど"}};
     public static void main(String[] args) {
-        String test = "たべる";
+        //pull in config file
+        File config = new File("Config.ini");
+        //default if it doesn't exist
+        if(!config.exists()) {
+            UIManager.put("OptionPane.messageFont", new Font("System", Font.PLAIN, 30));
+        } else{
+            try {
+                Scanner scanner = new Scanner(config);
+                String in = scanner.nextLine();
+                in = in.replace("FontSize=[", "").replace("]", "");
+                int fontSize = Integer.parseInt(in);
+                UIManager.put("OptionPane.messageFont", new Font("System", Font.PLAIN, fontSize));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
 
-        Verb testVerb = new Verb(test, "ru");
+        File verbListDir = new File("VerbLists");
 
-        System.out.println(testVerb.presentAffirmative());
+        File[] dir = verbListDir.listFiles();
+
+        Vector<Verb> verbVector = new Vector<>();
+
+        assert dir!= null;
+
+        for (File f: dir
+             ) {
+
+
+
+        BufferedReader inReader = null;
+        try {
+            inReader = new BufferedReader(new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_16));
+
+
+            //init
+            String str = "";
+            //while we're still getting something from the reader
+            while ((str = inReader.readLine()) != null) {
+                //split the string on the tab, throw away the tab
+                String dict = str.substring(0, str.indexOf("\t"));
+                String form = str.substring(str.indexOf("\t") + 1);
+                //create a term object
+                Verb temp = new Verb(dict, form);
+                //add it to the vector
+                verbVector.add(temp);
+
+            }
+        }catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        }
+        //Verb testVerb = new Verb(test, "ru");
+
+        //System.out.println(testVerb.presentAffirmative());
+
+
+        JOptionPane.showMessageDialog(null, verbVector.size() + " verbs loaded for practice\r\n" +
+                "This program will show you a dictionary form, then on the following screen show the conjugation as noted" +
+                "Please enter the number of terms you'd like to be shown");
+
+        int results = Integer.parseInt(JOptionPane.showInputDialog("Enter terms to practice"));
+
+        Random rand = new Random();
+
+        Vector<Integer> previouslySelected = new Vector<>();
+
+        for (int i = 0; i < results; i++){
+            int next = rand.nextInt(verbVector.size());
+
+            if (previouslySelected.contains(next)){
+                System.out.println("re-roll " + i);
+                i--;
+                if (previouslySelected.size() == verbVector.size()){
+                    previouslySelected.clear();
+                }
+                continue;
+            }
+
+            Verb temp = verbVector.elementAt(next);
+
+            previouslySelected.add(next);
+
+            JOptionPane.showMessageDialog(null, "Dictionary: " + temp.getVerbDictionaryForm());
+
+            JOptionPane.showMessageDialog(null, "Conjugated: " + temp.presentAffirmative());
+
+        }
 
     }
 }
